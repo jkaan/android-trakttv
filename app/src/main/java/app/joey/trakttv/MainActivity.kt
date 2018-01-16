@@ -3,7 +3,7 @@ package app.joey.trakttv
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.support.v4.view.ViewPager
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -27,34 +27,58 @@ class MainActivity : DaggerAppCompatActivity() {
     @Inject lateinit var service: AuthorizationService
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+      super.onCreate(savedInstanceState)
+      setContentView(R.layout.activity_main)
+      setSupportActionBar(toolbar)
+      setupViewPager(viewPager)
 
-        val serviceConfig = AuthorizationServiceConfiguration(
-            Uri.parse("https://api.trakt.tv/oauth/authorize"),
-            Uri.parse("https://api.trakt.tv/oauth/token")
-        )
-
-        val request = AuthorizationRequest.Builder(
-            serviceConfig,
-            "952eb54bbfb8e4f0ab6363452a9652a20984e8a6b3a7049a0e91d12141ac4569",
-            ResponseTypeValues.CODE,
-            Uri.parse("jkmoviemanager://done")
-        ).build()
-
-//        service = AuthorizationService(this)
-
-        val authIntent = service.getAuthorizationRequestIntent(request)
-        startActivityForResult(authIntent, RC_AUTH)
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+      bottomNavView.setOnNavigationItemSelectedListener {
+        when (it.itemId) {
+          R.id.action_movies -> {
+            viewPager.setCurrentItem(0, false)
+            true
+          }
+          R.id.action_shows -> {
+            viewPager.setCurrentItem(1, false)
+            true
+          }
+          R.id.action_accounts -> {
+            viewPager.setCurrentItem(2, false)
+            true
+          }
+          else -> {
+            false
+          }
         }
+      }
+
+
+
+      val serviceConfig = AuthorizationServiceConfiguration(
+          Uri.parse("https://api.trakt.tv/oauth/authorize"),
+          Uri.parse("https://api.trakt.tv/oauth/token")
+      )
+
+      val request = AuthorizationRequest.Builder(
+          serviceConfig,
+          "952eb54bbfb8e4f0ab6363452a9652a20984e8a6b3a7049a0e91d12141ac4569",
+          ResponseTypeValues.CODE,
+          Uri.parse("jkmoviemanager://done")
+      ).build()
+
+//    val authIntent = service.getAuthorizationRequestIntent(request)
+//    startActivityForResult(authIntent, RC_AUTH)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+  private fun setupViewPager(viewPager: ViewPager) {
+    val adapter = ViewPagerAdapter(supportFragmentManager)
+    adapter.addFragment(MoviesFragment())
+    adapter.addFragment(ShowsFragment())
+    adapter.addFragment(AccountFragment())
+    viewPager.adapter = adapter
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_AUTH) {
             val resp = AuthorizationResponse.fromIntent(data!!)
             // val ex = AuthorizationException.fromIntent(data)

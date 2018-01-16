@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+  <item
+    android:id="@+id/action_movies"
+    android:icon="@android:drawable/ic_lock_idle_alarm"
+    android:title="@string/movies"/>
+  <item
+    android:id="@+id/action_shows"
+    android:title="@string/shows"
+    android:icon="@android:drawable/ic_lock_power_off"/>
+  <item
+    android:id="@+id/action_accounts"
+    android:title="@string/account"
+    android:icon="@android:drawable/ic_secure"/>
+</menu>
