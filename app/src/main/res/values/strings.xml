@@ -4,4 +4,6 @@
   <string name="movies">Movies</string>
   <string name="shows">Shows</string>
   <string name="account">Account</string>
+    <string name="nav_open">Open nav</string>
+  <string name="nav_close">Close nav</string>
 </resources>
