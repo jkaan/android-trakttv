@@ -3,6 +3,17 @@ package app.joey.trakttv
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import app.joey.trakttv.data.MovieService
+import dagger.android.support.DaggerFragment
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.fragment_movies.view.*
+import javax.inject.Inject
 
 /**
  * A simple [Fragment] subclass.
@@ -12,19 +23,31 @@ import android.support.v4.app.Fragment
  * Use the [MoviesFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MoviesFragment : Fragment() {
+class MoviesFragment : DaggerFragment() {
 
-    // TODO: Rename and change types of parameters
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    @Inject lateinit var movieService: MovieService
 
-    private var mListener: OnFragmentInteractionListener? = null
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_movies, container, false)
+    }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        movieService
+            .getTrendingMovies()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { result ->
+                val adapter = TrendingMoviesAdapter(result)
+                view.recyclerView.adapter = adapter
+            }
+
+        val llm = LinearLayoutManager(activity)
+        llm.orientation = LinearLayout.VERTICAL
+
+        view.recyclerView.layoutManager = llm
+        view.recyclerView.adapter = TrendingMoviesAdapter(emptyList())
+
+        super.onViewCreated(view, savedInstanceState)
     }
 
 //    override fun onAttach(context: Context?) {
@@ -35,11 +58,6 @@ class MoviesFragment : Fragment() {
 //            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
 //        }
 //    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
 
     /**
      * This interface must be implemented by activities that contain this

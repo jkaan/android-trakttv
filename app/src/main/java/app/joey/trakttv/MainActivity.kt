@@ -2,7 +2,6 @@ package app.joey.trakttv
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.view.ViewPager
 import android.support.v7.app.ActionBarDrawerToggle
@@ -12,12 +11,9 @@ import android.view.MenuItem
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import net.openid.appauth.AuthorizationException
-import net.openid.appauth.AuthorizationRequest
 import net.openid.appauth.AuthorizationResponse
 import net.openid.appauth.AuthorizationService
-import net.openid.appauth.AuthorizationServiceConfiguration
 import net.openid.appauth.ClientSecretPost
-import net.openid.appauth.ResponseTypeValues
 import net.openid.appauth.TokenResponse
 import javax.inject.Inject
 
@@ -62,17 +58,17 @@ class MainActivity : DaggerAppCompatActivity() {
             }
         }
 
-        val serviceConfig = AuthorizationServiceConfiguration(
-            Uri.parse("https://api.trakt.tv/oauth/authorize"),
-            Uri.parse("https://api.trakt.tv/oauth/token")
-        )
-
-        val request = AuthorizationRequest.Builder(
-            serviceConfig,
-            "952eb54bbfb8e4f0ab6363452a9652a20984e8a6b3a7049a0e91d12141ac4569",
-            ResponseTypeValues.CODE,
-            Uri.parse("jkmoviemanager://done")
-        ).build()
+//        val serviceConfig = AuthorizationServiceConfiguration(
+//            Uri.parse("https://api.trakt.tv/oauth/authorize"),
+//            Uri.parse("https://api.trakt.tv/oauth/token")
+//        )
+//
+//        val request = AuthorizationRequest.Builder(
+//            serviceConfig,
+//            "952eb54bbfb8e4f0ab6363452a9652a20984e8a6b3a7049a0e91d12141ac4569",
+//            ResponseTypeValues.CODE,
+//            Uri.parse("jkmoviemanager://done")
+//        ).build()
 
 //    val authIntent = service.getAuthorizationRequestIntent(request)
 //    startActivityForResult(authIntent, RC_AUTH)
