@@ -9,8 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import app.joey.trakttv.data.MovieService
+import com.jakewharton.rxbinding2.support.v7.widget.scrollEvents
 import dagger.android.support.DaggerFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_movies.view.*
 import javax.inject.Inject
@@ -24,30 +27,55 @@ import javax.inject.Inject
  * create an instance of this fragment.
  */
 class MoviesFragment : DaggerFragment() {
-
+    private var compositeDisposable = CompositeDisposable()
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var adapter: TrendingMoviesAdapter
     @Inject lateinit var movieService: MovieService
+    private var page = 1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_movies, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         movieService
-            .getTrendingMovies()
+            .getTrendingMovies(page = 1, limit = 20)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { result ->
-                val adapter = TrendingMoviesAdapter(result)
+                adapter = TrendingMoviesAdapter(result.toMutableList())
                 view.recyclerView.adapter = adapter
-            }
+            }.addTo(compositeDisposable)
 
-        val llm = LinearLayoutManager(activity)
-        llm.orientation = LinearLayout.VERTICAL
+        view.recyclerView.scrollEvents().filter {
+            val visibleItems = layoutManager.childCount
+            val totalItems = layoutManager.itemCount
+            val firstVisibleItemPos = layoutManager.findFirstCompletelyVisibleItemPosition()
 
-        view.recyclerView.layoutManager = llm
-        view.recyclerView.adapter = TrendingMoviesAdapter(emptyList())
+            (visibleItems + firstVisibleItemPos) >= totalItems && firstVisibleItemPos >= 0
+        }.subscribe {
+            page += 1
+            movieService
+                .getTrendingMovies(page = page, limit = 20)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { result ->
+                    adapter.addAll(result)
+                }.addTo(compositeDisposable)
+        }
 
-        super.onViewCreated(view, savedInstanceState)
+        layoutManager = LinearLayoutManager(activity)
+        layoutManager.orientation = LinearLayout.VERTICAL
+
+        view.recyclerView.layoutManager = layoutManager
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        compositeDisposable.dispose()
     }
 
 //    override fun onAttach(context: Context?) {

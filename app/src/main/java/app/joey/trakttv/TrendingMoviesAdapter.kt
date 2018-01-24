@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import app.joey.trakttv.data.TrendingMovie
 import kotlinx.android.synthetic.main.row_trending_movie.view.*
 
-class TrendingMovieViewHolder(val v: View): RecyclerView.ViewHolder(v) {
+class TrendingMovieViewHolder(private val v: View): RecyclerView.ViewHolder(v) {
     fun bindMovie(movie: TrendingMovie) {
         v.textView.text = movie.movie.title
     }
 }
 
 class TrendingMoviesAdapter(
-    val movies: List<TrendingMovie>) : RecyclerView.Adapter<TrendingMovieViewHolder>() {
+    private val movies: MutableList<TrendingMovie>) : RecyclerView.Adapter<TrendingMovieViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TrendingMovieViewHolder {
         val layoutInflater = LayoutInflater.from(parent?.context)
@@ -26,6 +26,11 @@ class TrendingMoviesAdapter(
         val movie = movies[position]
 
         holder?.bindMovie(movie)
+    }
+
+    fun addAll(otherMovies: List<TrendingMovie>) {
+        movies.addAll(otherMovies)
+        notifyDataSetChanged()
     }
 
     override fun getItemCount() = movies.size
